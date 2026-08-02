@@ -5,42 +5,38 @@ description: Writes and revises technical documentation in Simplified Technical 
 
 # Keeping docs tight
 
-Two jobs.
+Cut before you polish. A sentence you improve and then delete is a wasted
+revision.
 
-- **Writing** a page a reader understands once, while doing something.
-- **Keeping** a doc tree that way as a codebase outgrows one reader.
+Of every paragraph, ask: **can I remove this and lose no concept?** While the
+answer is yes, keep cutting. No page has a right length, and no word count is
+the target.
 
-Three lenses order the work:
+Read the code before you believe the page. A document describing a bug that is
+already fixed does more damage than a long one, because a reader acts on it.
+Verify every claim that names a symbol, a file, a flag, or a number.
 
-- **Clear**: the reader never works out what you meant.
-- **Precise**: one name for one thing, and every number sourced.
-- **Concise**: fewer words carry the same meaning.
+When the text names an authority and then explains it anyway, cut the
+explanation and keep the pointer. The copy drifts from what it copies.
 
-Work top down. Cut a section before you polish a sentence in it. Polishing
-prose you later delete is the most common way to waste a revision.
+A score never tells you a page is done. The checkers read form. They cannot see
+an over-explained idea or a false claim, and those are most of the work.
 
-**Aim for the fewest words that keep every concept.** No page has a right
-length. A page under a ceiling often says one thing three times. A page over
-one is sometimes exactly right.
+Gate the file you wrote INTO. Cutting words out of a page improves that page
+while the words land somewhere nobody measured.
 
-So the stopping question is never "am I under the limit". Ask: **can I remove
-this and lose no concept?** While the answer is yes, keep cutting.
+When you finish a page, go find the next one. A doc tree stays tight because
+somebody keeps looking, and goes slack the moment nobody does.
 
-The checkers measure form. They cannot judge whether an idea is over-explained.
-They cannot tell a true claim from a false one. Those two are most of the work.
-Do [Step 2](#step-2-cut-what-the-reader-does-not-need) before you read a score.
+## What to read next
 
-**This skill changes what you do next.** Using it once makes you the person who
-notices a doc set drifting. Finish a page, then go looking for the next one. A
-tree stays tight because somebody keeps looking. It goes slack the moment
-nobody does.
-
-## Which workflow
-
-- **Editing one page?** Run the [revision workflow](#revision-workflow).
-- **Auditing a tree?** Run the [maintenance workflow](#maintenance-workflow).
-- **Writing from scratch?** Read [the rules](#the-ste-rules) and
-  [the tells](#the-tells), draft, then revise the draft.
+| You are | Read |
+|---|---|
+| editing one page | the [revision workflow](#revision-workflow) below |
+| auditing a tree | the [maintenance workflow](#maintenance-workflow) below |
+| writing a sentence | [STE.md](STE.md). Compose in it. Sanding afterward does not work |
+| editing prose a model wrote | [BANNED.md](BANNED.md) |
+| running a checker | [CHECKERS.md](CHECKERS.md) |
 
 ## Revision workflow
 
@@ -276,68 +272,6 @@ uv run scripts/docs-loop.py progress
 `progress` prints this run against the last, by category, and names the files
 that moved. Record the totals wherever the project tracks work.
 
-## The STE rules
-
-ASD-STE100 Simplified Technical English, a controlled language written for
-aircraft maintenance manuals in 1986. It removes ambiguity by limiting words,
-sentence length, and grammar. Compose in it. Do not write another way and sand
-it down afterward.
-
-**Words.** One name for one thing. The short common word: start, use, help,
-make sure, before, after, about, get, show, also. One meaning per word: in this
-text, `fall` means to move down and never means to decrease. American spelling.
-
-**Verbs.** Active voice when the actor is known: "the parser reads the file".
-A verb for an action: "analyze the log". One auxiliary at a time.
-
-**Sentences.** One instruction per sentence. Instructions to 20 words,
-descriptive sentences to 25. Write out every contraction. Use articles.
-
-**Punctuation.** No semicolon, write two sentences. Prefer a comma, a colon, a
-period, or parentheses over an em dash.
-
-**Structure.** One topic per paragraph, six sentences at most. Steps go in a
-numbered vertical list, one action each, imperative. Put a condition before its
-command: "If the check fails, stop the run".
-
-**Modes.** `strict` applies every rule and both length caps. Use it for
-procedures, runbooks, safety text, error messages, and CLI reference.
-`flavored` applies the sentence, paragraph, active-voice, and plain-verb rules,
-and relaxes the word list so the text keeps range. Use it for READMEs, pull
-request descriptions, briefs, and reports.
-
-Default to flavored. Choose strict when a reader follows the text as a
-procedure, or when a wrong reading costs something.
-
-## The tells
-
-A **tell** is a phrase that reveals the writer. The subject goes missing. Model
-prose carries a known set. A reader who has seen a hundred generated documents
-recognizes them before reading the content.
-
-Six outrank the rest. Each attaches a judgment to a fact:
-
-<!-- docs-loop: off -->
-
-| Tell | Instead |
-|---|---|
-| Contrast framing: "not X, it is Y" | State what it is. |
-| Counting first: "Three things." | The list already says how many. |
-| Verdict first: "The good news is" | The reader decides. |
-| Hedging a number: "may improve somewhat" | The number, or a visible placeholder. |
-| Scoring the reader: "you did not mention" | The fact, with the reader out of it. |
-| Location over state: "it sits in Settled" | "It is settled." |
-
-<!-- docs-loop: on -->
-
-[BANNED.md](BANNED.md) holds the full lists: AI tells, generic slop, and a
-template for a project's own. Read it when editing prose that came from a
-model. Read it when a checker reports `banned_word`, `marketing_adjective`, or
-a `voice` rule.
-
-The fix is never a synonym. A sentence reaching for a banned verb hides the
-mechanism. Say what the thing does.
-
 ## The evidence rules
 
 These survive both modes.
@@ -392,21 +326,6 @@ To quote a bad sentence on purpose, wrap it in a suppression marker. See
 A checker reads form. A hollow paragraph in clean prose passes every gate, and
 so does a wrong number. Verify the claim yourself, then run the checker.
 
-## Self-lint
-
-Run these before returning any text.
-
-1. Does a sentence run longer than 20 words? Split it.
-2. Is there a semicolon? Replace it with a period.
-3. Is there an em dash? Replace it.
-4. Is there a contraction? Expand it.
-5. Is there passive voice with a known actor? Make it active.
-6. Is there an "-ing" main verb, a nominalization, or a phrasal verb such as
-   "spin up"? Replace it with a plain verb.
-7. Is one thing named two ways? Pick one name.
-8. Does a sentence carry a judgment about the fact next to it? Cut the
-   judgment.
-
 ## When to reach for something else
 
 This skill serves a reader who must understand the text exactly once, while
@@ -416,25 +335,6 @@ pieces, and anything with a byline to a skill built for published writing.
 
 A postmortem splits. Write the timeline, the cause, and the fix here. Let a
 published-writing skill own the framing around them.
-
-## Measured effect
-
-Six engineer-writing tasks, four conditions, scored by a heuristic linter at
-violations per 100 words. Lower is cleaner.
-
-| Condition | Claude Sonnet | GPT-5.5 |
-|---|---|---|
-| baseline | 4.36 | 3.54 |
-| banned-words list | 4.21 (-3%) | 2.14 (-40%) |
-| Orwell's six rules | 2.48 (-43%) | 1.69 (-52%) |
-| the STE rules | 1.12 (-74%) | 1.76 (-50%) |
-
-A writing system beats a word ban on both models. A word ban is unreliable: it
-cut 3 percent on one model and 40 percent on the other. That is why this file
-carries the rules and `BANNED.md` carries the lists.
-
-Treat these as directional. The sample is six tasks on two models, scored by a
-heuristic.
 
 ## Credits
 

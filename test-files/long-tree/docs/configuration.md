@@ -18,9 +18,18 @@ and carries a comment on each field explaining its default.
 | `field_11` | 77 | behavior 11 |
 | `field_12` | 84 | behavior 12 |
 
-Each default was chosen by measuring the behavior it controls under load. A
-lower value rejected work that would have drained. A higher value hid
-backpressure from the caller. The reasoning for every one of them is written
-beside the field in `src/config.rs`, in the same comment that defines it, so
-the two can never disagree with each other about what the default means or
-why it was picked in the first place.
+The `workers` default is the CPU core count, because spawning more workers than
+cores produces contention without throughput. The `queue_depth` default is one
+thousand: a deeper queue hides backpressure from the caller, and a shallower one
+rejects bursts that would have drained on their own. The `timeout` default is
+thirty seconds, long enough for the slowest observed request and short enough
+that a stuck one does not hold a worker for a whole shift. The `retries` default
+is three, because most transient failures resolve by the second attempt and a
+fourth has never changed an outcome in the recorded history.
+
+The `log_level` default is info, which prints one line per request and nothing
+per retry, so an operator reading the log sees work rather than noise. The
+`flush_interval` default is five seconds, chosen so a crash loses at most one
+window of buffered rows. The `shard_count` default is sixteen, which divides
+evenly across every deployment size in use and leaves headroom to double
+without a rebalance.

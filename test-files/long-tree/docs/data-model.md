@@ -1,10 +1,9 @@
 # The data model
 
-The smallest change the ledger records is a posting. Each one carries an
-account to debit, an account to credit, and an amount expressed in minor
-units. An account balance is derived by summing its postings, because no
-balance is stored anywhere in the schema.
+The atomic unit of change in the ledger is a posting. Every posting names a
+debit account, a credit account, and an amount in minor units. An account
+balance comes from summing its postings, because the schema holds no stored
+balance column anywhere.
 
-Once written, a posting never changes. Corrections happen by appending a
-reversal rather than by mutating or removing what is already there.
-
+A posting is immutable once written. Corrections happen by writing a reversing
+posting, never by editing or deleting the original row.

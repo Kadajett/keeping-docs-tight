@@ -115,9 +115,10 @@ page carries five contradictions with its own source and scores 1 finding at
   "files": ["test-files/long-tree/"],
   "expected_behavior": [
     "Runs scan and quotes real totals, then ranks",
-    "Starts with docs/configuration.md, the worst file by findings per 1000 words",
+    "Does not start with docs/deploy.md, which ranks worst at 107.1 per 1000 words on 28 words. A rate over a short page is noise",
+    "Starts with docs/configuration.md, which carries the most actual work at 256 words and 39.1",
     "Notices it names src/config.rs as authoritative and then restates the reasoning",
-    "Finds docs/postings.md and docs/data-model.md carry one fact in two wordings",
+    "Finds docs/postings.md and docs/data-model.md carry one fact in two wordings, reported at 85 percent",
     "Reads src/limits.rs and catches docs/batching.md claiming 1000 against MAX_BATCH = 500",
     "Notices docs/currency.md opens on a heading with nothing grounding it",
     "Does not treat docs/batching.md as healthy because it scores zero findings"
@@ -125,9 +126,10 @@ page carries five contradictions with its own source and scores 1 finding at
 }
 ```
 
-Nine pages with contrast from 115.2 findings per 1000 words down to 0.0, so
-ranking has something to rank. The two traps are the page that scores worst and
-is merely repetitive, and the page that scores zero and is wrong.
+Nine pages ranking from 107.1 findings per 1000 words down to 0.0, so ranking
+has something to rank. Three traps: the page that ranks worst is 28 words long
+and its rate means nothing, the page that scores zero states a false limit, and
+the duplicate is a paraphrase that only BM25 finds.
 
 ## Baselines
 
@@ -139,11 +141,15 @@ Measured 2026-08-02 on the fixtures as committed.
 | `model-written-changelog.md` | 110 | 12 | 109.1 | 7 |
 | `example-repo/` | 2 pages | 1 duplicate pair | | |
 | `accuracy-repo/docs/retry.md` | 72 | 1 | 13.9 | 0 |
-| `long-tree/` | 1,084 across 9 files | 101 | 93.2 | 1 |
+| `long-tree/` | 579 across 9 files | 21 | 36.3 | 1 |
 
 The two rows above are the point. `retry.md` scores 13.9 and contradicts its
 source five times. `long-tree/docs/batching.md` scores 0.0 and states a limit
 of 1000 against a `MAX_BATCH` of 500.
+
+Re-measure these after touching a fixture. An earlier version of this table
+said 1,084 words and 101 findings for `long-tree/`, measured before a fixture
+edit and never checked again. A fresh clone caught it.
 
 A run that lowers these numbers while keeping every fact is a pass. A run that
 lowers them by deleting a fact is a failure, and the checkers cannot tell the

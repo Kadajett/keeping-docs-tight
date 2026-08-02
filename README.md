@@ -20,12 +20,9 @@ Two jobs:
   </a>
 </div>
 
-> **From the maintainer:** Docs drift from the code they describe, and no style
-> checker sees it. A page can score clean and be wrong on every claim.
->
-> Reading code is my day job. I founded [Semfora](https://semfora.ai), a
-> semantic code analysis engine that hands coding agents call graphs, module
-> maps, and the blast radius of a change.
+> **From the maintainer:** I started [Semfora](https://semfora.ai), a static
+> analysis tool for AI governance. It pays the bills, so I can release cool
+> stuff occasionally.
 
 ---
 

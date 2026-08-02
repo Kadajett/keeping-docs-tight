@@ -199,6 +199,12 @@ uv run docs-loop.py install-hook      # write a pre-commit hook that calls it
 `gate.hard_rules` defaults to `em_dash`, `semicolon`, `contraction`: the rules
 with a cap of zero, which no floor should ever forgive.
 
+Text a tool writes is scored as absent. `generated_regions` in
+`.docs-loop.json` takes `[open, close]` marker pairs, and the built-in list
+covers the `bd setup` blocks and any file marked `<!-- GENERATED FILE`.
+Scoring a machine-written region fails a commit over text the author cannot
+fix, and a gate you cannot pass gets bypassed.
+
 `gate.baseline` holds the floor. With none recorded, `gate` falls back to the
 newest `scan`. Raise it deliberately with `--accept`, never silently.
 

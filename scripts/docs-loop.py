@@ -102,11 +102,34 @@ SUPPRESS = re.compile(
 
 FRONTMATTER = re.compile(r"\A---\n.*?\n---\n", re.S)
 
+# Regions a tool writes and rewrites. Scoring them fails a commit over text the
+# author cannot fix, and a gate you cannot pass gets bypassed. Configure more
+# in .docs-loop.json under `generated_regions`, as [open, close] marker pairs.
+GENERATED_DEFAULT = [
+    ["<!-- BEGIN BEADS INTEGRATION", "<!-- END BEADS INTEGRATION"],
+    ["<!-- BEGIN BEADS CODEX SETUP", "<!-- END BEADS CODEX SETUP"],
+    ["<!-- GENERATED FILE", ""],
+]
+_GENERATED = list(GENERATED_DEFAULT)
+
+
+def set_generated_regions(pairs):
+    """Called from config() so a project can name its own generated blocks."""
+    global _GENERATED
+    _GENERATED = list(GENERATED_DEFAULT) + [p for p in pairs if p not in GENERATED_DEFAULT]
+
 
 def desuppress(text):
-    """Blank a quoted-example region and the frontmatter, keeping line numbers."""
+    """Blank quoted examples, frontmatter, and machine-written regions."""
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
-    return SUPPRESS.sub(blank, FRONTMATTER.sub(blank, text))
+    text = SUPPRESS.sub(blank, FRONTMATTER.sub(blank, text))
+    for open_marker, close_marker in _GENERATED:
+        if close_marker:
+            pat = re.escape(open_marker) + r".*?" + re.escape(close_marker) + r"[^\n]*"
+        else:
+            pat = re.escape(open_marker) + r"[^\n]*"
+        text = re.sub(pat, blank, text, flags=re.S)
+    return text
 
 
 CONTAINERS = {"blockquote": "quote", "bullet_list": "list", "ordered_list": "list",
@@ -912,6 +935,8 @@ CFG_DEFAULTS = {
     },
     # Acronyms this project uses without spelling out. The built-in list holds
     # only names a general technical reader knows.
+    # [open, close] marker pairs for text a tool writes. Scored as absent.
+    "generated_regions": [],
     "acronyms_ok": [],
     # Groups where one thing must not carry two names. Empty until a project
     # names its own: [["stored graph", "symbol index"], ...]
@@ -933,6 +958,7 @@ def config(state):
             cfg[key].update(val)
         elif val or val == 0:
             cfg[key] = val
+    set_generated_regions(cfg.get("generated_regions") or [])
     return cfg
 
 

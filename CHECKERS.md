@@ -21,6 +21,12 @@ and where docs usually sit.
 A Docusaurus site under `website/docs/` with `.mdx` pages was invisible to an
 earlier version of this tool, which took `.md` and nothing else.
 
+## over_quotation has a prose floor
+
+A short README with one attribution blockquote always exceeds a ratio. The
+check is about a writer quoting instead of writing, which needs enough prose
+to be true, so it stays quiet under `quote_ratio_min_words`.
+
 ## Two checks score by volume
 
 `negative_parallelism` needs three negations in one breath. At two it matched

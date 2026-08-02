@@ -12,6 +12,23 @@ Two jobs:
   categories, finds paragraphs that say one thing twice, and reports what moved
   since the last run.
 
+---
+
+<div align="center">
+  <a href="https://semfora.ai">
+    <img src="assets/semfora-logo.svg" alt="Semfora" width="380">
+  </a>
+</div>
+
+> **From the maintainer:** Docs drift from the code they describe, and no style
+> checker sees it. A page can score clean and be wrong on every claim.
+>
+> Reading code is my day job. I founded [Semfora](https://semfora.ai), a
+> semantic code analysis engine that hands coding agents call graphs, module
+> maps, and the blast radius of a change.
+
+---
+
 ## Install
 
 ```bash

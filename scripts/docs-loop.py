@@ -415,7 +415,11 @@ def macro(blocks, findings, caps):
                          f"{caps['mermaid_per_page']} per page"))
         counts["mermaid_count"] += mermaid - 1
 
-    if prose_words and quote_words / prose_words > caps["quote_ratio"]:
+    # A short page with one attribution blockquote always exceeds a ratio.
+    # The check is about a writer quoting instead of writing, which needs
+    # enough prose to be true.
+    if (prose_words >= caps["quote_ratio_min_words"]
+            and quote_words / prose_words > caps["quote_ratio"]):
         findings.append((0, "redundancy", "over_quotation",
                          f"quotes are {100 * quote_words // prose_words}% of prose, over "
                          f"{int(caps['quote_ratio'] * 100)}%"))
@@ -949,6 +953,7 @@ CFG_DEFAULTS = {
         "prepositions_per_sentence": 4,   # the paramedic method
         "be_verbs_per_sentence": 0.8,
         "quote_ratio": 0.15,         # quoted words over prose words
+        "quote_ratio_min_words": 500,  # below this, one blockquote skews it
         "repeated_phrase_len": 5,
         "repeated_phrase_floor": 3,
         "duplicate_threshold": 0.45,  # BM25 score against a self-match

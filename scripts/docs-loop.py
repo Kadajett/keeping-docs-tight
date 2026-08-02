@@ -64,7 +64,12 @@ from collections import Counter, defaultdict, namedtuple
 from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SKIP_DIRS = {".git", "target", "node_modules", ".venv", "dist", "build", ".next"}
+# Defaults only. A project overrides every one of these in .docs-loop.json,
+# because no two projects put docs in the same place: docs/, documentation/,
+# website/docs/, content/, src/pages/, wiki/, adr/, or beside the code.
+SKIP_DIRS = {".git", "target", "node_modules", ".venv", "dist", "build", ".next",
+             "vendor", "__pycache__", ".cache", "coverage"}
+DOC_EXTENSIONS = [".md", ".mdx", ".markdown", ".mdown"]
 STATE_NAME = ".docs-loop.json"
 MAX_RUNS = 20
 
@@ -963,6 +968,10 @@ CFG_DEFAULTS = {
     # only names a general technical reader knows.
     # [open, close] marker pairs for text a tool writes. Scored as absent.
     "generated_regions": [],
+    # Which files count as documentation, and where discovery may go.
+    "extensions": DOC_EXTENSIONS,   # .mdx covers Docusaurus, Storybook, Next.js
+    "skip_dirs": [],                # added to the built-in list
+    "include_hidden": [],           # hidden dirs to scan anyway, e.g. ".github"
     "acronyms_ok": [],
     # Groups where one thing must not carry two names. Empty until a project
     # names its own: [["stored graph", "symbol index"], ...]
@@ -1019,24 +1028,32 @@ def shortpath(path, width):
     return path if len(path) <= width else "\u2026" + path[-(width - 1):]
 
 
-def discover(paths, ignore=()):
-    """Every markdown file under paths, minus symlinks and ignored globs.
+def discover(paths, ignore=(), cfg=None):
+    """Every doc file under paths, minus symlinks and ignored globs.
 
-    A symlink is skipped because CLAUDE.md points at AGENTS.md here. Counting
-    both doubles the word total and reports a 100 percent duplicate that no
-    edit can remove.
+    A symlink is skipped because a CLAUDE.md pointing at an AGENTS.md doubles
+    the word total and reports a 100 percent duplicate no edit can remove.
+
+    Extensions and skipped directories come from config, because docs do not
+    live in the same place twice.
     """
     import fnmatch
+    cfg = cfg or {}
+    exts = tuple(cfg.get("extensions") or DOC_EXTENSIONS)
+    skip = SKIP_DIRS | set(cfg.get("skip_dirs") or [])
+    keep_hidden = set(cfg.get("include_hidden") or [])
     out = []
     for p in paths or ["."]:
         if os.path.isfile(p):
             out.append(p)
             continue
         for root, dirs, files in os.walk(p):
-            dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")
+            dirs[:] = [d for d in dirs
+                       if d not in skip
+                       and (not d.startswith(".") or d in keep_hidden)
                        and not os.path.islink(os.path.join(root, d))]
             out += [os.path.join(root, f) for f in files
-                    if f.endswith(".md") and not os.path.islink(os.path.join(root, f))]
+                    if f.endswith(exts) and not os.path.islink(os.path.join(root, f))]
     root = repo_root()
     rel = sorted({os.path.relpath(os.path.abspath(f), root) for f in out})
     return [f for f in rel if not any(fnmatch.fnmatch(f, g) for g in ignore)]
@@ -1053,7 +1070,7 @@ def cmd_scan(argv):
     os.chdir(root)
     try:
         files = discover([os.path.relpath(os.path.abspath(os.path.join(cwd, a)), root)
-                          for a in argv] if argv else None, cfg["ignore"])
+                          for a in argv] if argv else None, cfg["ignore"], cfg)
         results, paragraphs = {}, []
         for f in files:
             try:
@@ -1214,7 +1231,7 @@ def cmd_dupes(argv):
     os.chdir(root)
     try:
         files = discover([os.path.relpath(os.path.abspath(os.path.join(cwd, a)), root)
-                          for a in argv] if argv else None, cfg["ignore"])
+                          for a in argv] if argv else None, cfg["ignore"], cfg)
         paragraphs = []
         for f in files:
             for b in parse(open(f, encoding="utf-8").read()):
@@ -1254,12 +1271,13 @@ def cmd_progress(argv):
         print(f"  {d:>+5}  {f}")
 
 
-def changed_markdown():
-    """Staged markdown, falling back to everything changed against HEAD."""
+def changed_markdown(cfg=None):
+    """Staged doc files, falling back to everything changed against HEAD."""
+    exts = tuple((cfg or {}).get("extensions") or DOC_EXTENSIONS)
     for args in (["diff", "--cached", "--name-only", "--diff-filter=ACM"],
                  ["diff", "--name-only", "--diff-filter=ACM", "HEAD"]):
         out = subprocess.run(["git"] + args, capture_output=True, text=True)
-        files = [f for f in out.stdout.split("\n") if f.endswith(".md")]
+        files = [f for f in out.stdout.split("\n") if f.endswith(exts)]
         if files:
             return [f for f in files if os.path.exists(f)]
     return []
@@ -1275,7 +1293,7 @@ def cmd_gate(argv):
     os.chdir(root)
     try:
         explicit = [a for a in argv if not a.startswith("-")]
-        files = explicit or changed_markdown()
+        files = explicit or changed_markdown(cfg)
         files = [f for f in files if not any(
             __import__("fnmatch").fnmatch(f, g) for g in cfg["ignore"])]
         if not files:

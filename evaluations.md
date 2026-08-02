@@ -97,7 +97,7 @@ difference. Read the output.
 
 ## What these do not cover
 
-Three gaps, named rather than hidden.
+Three gaps. Each is named here so nobody discovers it by surprise.
 
 **No model matrix.** The skill has been exercised on one model. The authoring
 guidance asks for Haiku, Sonnet, and Opus, because a skill that reads as

@@ -185,6 +185,36 @@ Copy this checklist:
 - [ ] 6. Re-measure and record
 ```
 
+### Step 0: Find the docs
+
+No two projects put their docs in the same place. Before measuring, look:
+
+| Layout | Where |
+|---|---|
+| plain repo | `docs/`, `documentation/`, and markdown at the root |
+| Docusaurus, Nextra | `website/docs/`, `.mdx` |
+| Hugo, Astro, Eleventy | `content/` |
+| Next.js, Storybook | `src/pages/`, `*.stories.mdx` |
+| decision records | `adr/`, `decisions/`, `rfcs/` |
+| monorepo | a `README.md` per package |
+| project rules | `.github/`, `AGENTS.md`, `CLAUDE.md` |
+| beside the code | rustdoc, docstrings, jsdoc |
+
+`scan` walks the whole tree and takes `.md`, `.mdx`, `.markdown`, and `.mdown`.
+It skips hidden directories, so `.github/` needs naming. Three settings in
+`.docs-loop.json` handle the rest:
+
+```json
+{
+  "extensions": [".md", ".mdx", ".rst"],
+  "include_hidden": [".github"],
+  "skip_dirs": ["generated", "i18n"]
+}
+```
+
+Source-comment docs are out of scope here. Generate them, then run this on the
+output.
+
 ### Step 1: Measure
 
 ```bash
@@ -271,6 +301,22 @@ uv run scripts/docs-loop.py progress
 
 `progress` prints this run against the last, by category, and names the files
 that moved. Record the totals wherever the project tracks work.
+
+## How much to trust yourself
+
+Match your caution to what breaks.
+
+**Judgment, no script.** Whether an idea is over-explained. Whether a claim is
+still true. Whether a page earns its length. No checker sees these, and
+guessing is the job.
+
+**Judgment, then a script confirms.** Whether a section repeats what it points
+at, whether two pages say one thing, whether a page opens. Reach for the
+finding, then decide. The checker names candidates and you rule.
+
+**Script, no judgment.** Em dashes, semicolons, contractions, and the ratchet.
+These have one right answer, and the gate holds it. Do not argue with them,
+and do not raise a floor to avoid one.
 
 ## The evidence rules
 

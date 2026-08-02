@@ -13,6 +13,16 @@ This page holds what a script cannot say about itself. Every check below earned
 its place by something going wrong once, and the incident is the reason it has
 the shape it has.
 
+## Discovery is configurable, because docs move
+
+`scan` takes `.md`, `.mdx`, `.markdown`, and `.mdown`, skips hidden
+directories, and walks from the repository root or the working directory when
+there is no git. Override `extensions`, `skip_dirs`, and `include_hidden` in
+`.docs-loop.json`.
+
+A Docusaurus site under `website/docs/` with `.mdx` pages was invisible to an
+earlier version of this tool, which took `.md` and nothing else.
+
 ## Two checks score by volume
 
 `negative_parallelism` needs three negations in one breath. At two it matched
@@ -61,7 +71,7 @@ bypassed. Name your own in `generated_regions` as `[open, close]` marker pairs.
 Test fixtures need the same exemption for the opposite reason. A fixture that
 passes the checkers is not a fixture. Put them behind an `ignore` glob.
 
-## The ban list is enforced, not only written
+## The ban list is enforced
 
 `BANNED.md` once documented 28 words the checker never looked at, including
 `load-bearing` and `delve`. The prose list was written by hand and the checker

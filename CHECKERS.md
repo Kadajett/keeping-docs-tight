@@ -58,6 +58,9 @@ The gate refused a commit over em dashes inside a `bd setup` block. That block
 regenerates, so the author cannot fix it, and a gate you cannot pass gets
 bypassed. Name your own in `generated_regions` as `[open, close]` marker pairs.
 
+Test fixtures need the same exemption for the opposite reason. A fixture that
+passes the checkers is not a fixture. Put them behind an `ignore` glob.
+
 ## The ban list is enforced, not only written
 
 `BANNED.md` once documented 28 words the checker never looked at, including
@@ -92,5 +95,4 @@ defeats the checker.
 
 ## What a checker cannot do
 
-It reads form. A hollow paragraph in clean prose passes every gate. A wrong
-number passes every gate. Verify the claim yourself, then run the checker.
+See the opening of [SKILL.md](SKILL.md). A score never tells you a page is done.

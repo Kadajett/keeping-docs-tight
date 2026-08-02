@@ -45,7 +45,7 @@ SKILL.md         what to do, then the two workflows
 STE.md           how to write the sentence
 BANNED.md        three ban lists, and where your project's list goes
 CHECKERS.md      every command, every category, every config key
-evaluations.md   three scenarios for testing changes to this skill
+evaluations.md   three scenarios, with fixtures in test-files/
 scripts/         the three checkers
 ```
 

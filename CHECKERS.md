@@ -88,18 +88,36 @@ directories, and the ignore globs. Pass explicit paths to narrow it.
 
 | Category | Checks |
 |---|---|
-| `structure` | heading depth, paragraph length, a paragraph carrying more than one point, hollow sections, throat clearing, mermaid count, code density per section |
+| `structure` | heading depth, paragraph length, a paragraph carrying more than one point, hollow sections, throat clearing, mermaid count, code density per section, orphan sections, missing openings |
 | `redundancy` | repeated phrases, near-duplicate paragraphs in and across files, over-quotation |
 | `precision` | undefined acronyms, one thing named two ways, a term used before the page lands it |
 | `conciseness` | the paramedic method: preposition chains, buried verbs, slow starts, long sentences, be-verb rate, contractions, compactable phrases |
 | `voice` | the eight rules from `voice-lint.py` |
 | `mechanics` | the rules from `ste-lint.py` |
 
+### When a moved section pretends to be a page
+
+`orphan_section` fires on a file with one heading and real prose under it. That
+shape is a section someone carved out of a larger file. It reads worse than
+anything written as a page, because it opens mid-thought.
+
+`no_opening` fires when the first heading arrives before `page_opening_words`
+of prose. A page grounds its subject before its first section.
+
+Both came from one incident. Four sections moved out of an `AGENTS.md` into
+their own files, and nobody ran a checker on the destinations. The two smallest
+scored 52 and 36 findings per 1000 words, against 8 and 15 for the two pages
+written as pages.
+
 ### Contractions against compactable phrases
 
 `compaction_ratio` reports both counts on one line. They are the same failure
 at two scales: the text is longer than the meaning. A page with no contractions
 and thirty long phrases still fails that test.
+
+Phrase matching flattens newlines first. A hard-wrapped document splits a
+two-word phrase across a line break, and `load\nbearing` escaped every check
+until it did not.
 
 `compactable_phrase` names each phrase and its shorter exact form, from a table
 of 40: `in order to` means `to`, `due to the fact that` means `because`, `has

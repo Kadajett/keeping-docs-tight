@@ -331,6 +331,30 @@ def macro(blocks, findings, caps):
 
     close_section()
 
+    # A section that was moved into its own file is not yet a page. It arrives
+    # with no opening, and its heading was pitched for a different parent. This
+    # fired on docs/stored-graph.md and docs/surfaces.md, both one-section files
+    # carved out of AGENTS.md, both worse per word than anything hand-written.
+    h2s = [b for b in blocks if b.kind == "heading" and b.level == 2]
+    # Everything before the first level-2 heading, not just the first block.
+    # An opening can be a sentence, then a list, then a paragraph.
+    opener_words = 0
+    for b in blocks:
+        if b.kind == "heading" and b.level == 2:
+            break
+        if b.kind in ("para", "list"):
+            opener_words += len(words(strip_inline(b.text)))
+    if len(h2s) <= 1 and prose_words >= 80:
+        findings.append((h2s[0].line if h2s else 1, "structure", "orphan_section",
+                         f"one section and {prose_words} words: a moved section, "
+                         f"not yet a page. Grow it or fold it into a bigger page"))
+        counts["orphan_section"] += 1
+    elif h2s and opener_words < caps["page_opening_words"]:
+        findings.append((h2s[0].line, "structure", "no_opening",
+                         f"the first section starts after {opener_words} words. A page "
+                         f"grounds its subject before its first heading"))
+        counts["no_opening"] += 1
+
     if mermaid > caps["mermaid_per_page"]:
         findings.append((0, "structure", "mermaid_count",
                          f"{mermaid} mermaid diagrams, over the cap of "
@@ -873,6 +897,7 @@ CFG_DEFAULTS = {
         "duplicate_threshold": 0.55,  # BM25 score against a self-match
         "duplicate_min_words": 25,
         "ground_window": 6,          # a lead-in before a definition table is fine
+        "page_opening_words": 25,    # what a page owes before its first heading
     },
     # Acronyms this project uses without spelling out. The built-in list holds
     # only names a general technical reader knows.

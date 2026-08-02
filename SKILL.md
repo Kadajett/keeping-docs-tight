@@ -170,6 +170,15 @@ README, the architecture page, and the module doc. Each copy drifts.
 
 Pick one home per fact. Delete the rest and link.
 
+**A moved section is not a page.** A section cut from one file into another
+arrives with no opening, and its heading was pitched for a different parent. Give it what a page owes before you move on: a sentence that
+grounds the subject, a heading that reads standalone, and a run of the checkers
+on the destination file.
+
+Gate the destination. Cutting words out of a page improves that page's score
+while the words land somewhere nobody measured. Run `docs-loop.py fix` on the
+file you wrote INTO, every time.
+
 ### Step 4: Take the worst file
 
 ```bash

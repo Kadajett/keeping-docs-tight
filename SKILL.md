@@ -66,10 +66,10 @@ This is the step the checkers cannot help with, and the step that removes real
 words. A page can score 8 findings per 1000 and still be twice as long as it
 should be. Run these six tests before you touch a sentence.
 
-**The pointer test.** The highest-yield test by a wide margin. It cut one
-section from 1,310 words to 396, and every rule it dropped still exists where
-a gate enforces it. `docs-loop.py fix` reports the candidates as
-`explains_after_pointing`, so you do not have to spot them yourself.
+**The pointer test.** The highest-yield test by a wide margin. Every rule it
+drops still exists where a gate enforces it. `docs-loop.py fix` reports the
+candidates as `explains_after_pointing`, so you do not have to spot them
+yourself.
 
 **The enforcement test.** Is the rule already held by a test, a type, a gate,
 or a compiler error? Then the page says the rule exists and names what holds
@@ -153,6 +153,24 @@ The action hides inside a noun. Find the noun, free the verb:
 
 Four prepositions in one sentence means a noun is doing a verb's job. `There
 is`, `It is`, and `In order to` are slow starts with nothing behind them.
+
+### Do I need this anecdote?
+
+Ask this at each sentence, in the same pass. No script asks it for you.
+
+An anecdote is a sentence about the writing. It carries the number a past
+revision produced, or the other tool that proved the idea somewhere else. Ask
+who acts on it. Nobody does. Cut the anecdote and keep the rule.
+
+- **A number the reader never uses.** Keep a number the reader compares
+  against or types. A number that only says the method worked once is
+  decoration.
+- **Another project as proof.** What held in another library proves nothing
+  here, and the reader cannot check it. State the rule and let it stand.
+
+A skill file has the least room of all. An agent reads it, spends context on
+every word, and needs no story to follow a rule. An anecdote in a skill file
+costs tokens and persuades nobody.
 
 ### Step 5: Run the checkers
 
@@ -302,8 +320,8 @@ that moved. Record the totals wherever the project tracks work.
 Match your caution to what breaks.
 
 **Judgment, no script.** Whether an idea is over-explained. Whether a claim is
-still true. Whether a page earns its length. No checker sees these, and
-guessing is the job.
+still true. Whether a page earns its length. Whether an anecdote serves any
+reader. No checker sees these, and guessing is the job.
 
 **Judgment, then a script confirms.** Whether a section repeats what it points
 at, whether two pages say one thing, whether a page opens. Reach for the

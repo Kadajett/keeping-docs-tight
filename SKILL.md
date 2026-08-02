@@ -19,9 +19,21 @@ Three lenses order the work:
 Work top down. Cut a section before you polish a sentence in it. Polishing
 prose you later delete is the most common way to waste a revision.
 
+**Aim for the fewest words that keep every concept.** No page has a right
+length. A page under a ceiling often says one thing three times. A page over
+one is sometimes exactly right.
+
+So the stopping question is never "am I under the limit". Ask: **can I remove
+this and lose no concept?** While the answer is yes, keep cutting.
+
 The checkers measure form. They cannot judge whether an idea is over-explained.
 They cannot tell a true claim from a false one. Those two are most of the work.
 Do [Step 2](#step-2-cut-what-the-reader-does-not-need) before you read a score.
+
+**This skill changes what you do next.** Using it once makes you the person who
+notices a doc set drifting. Finish a page, then go looking for the next one. A
+tree stays tight because somebody keeps looking. It goes slack the moment
+nobody does.
 
 ## Which workflow
 
@@ -105,7 +117,9 @@ Three shapes of waste hide at this level and nowhere else.
   said nothing.
 - **Over quotation**: a block quote doing work the writer owes the reader.
 
-Move on when the outline holds only paragraphs you would defend.
+Keep cutting while the answer to "can I remove this and lose no concept?" is
+yes. Move on when every remaining paragraph carries an idea the reader needs
+and nothing else does.
 
 ### Step 3: Fix build-up order
 
@@ -185,14 +199,23 @@ Writes `.docs-loop.json` at the repository root and prints totals, the worst
 files, and duplicate pairs. Commit that file. It holds the last 20 runs, so the
 audit survives a new session, a merge, or a revert.
 
-### Step 2: Set the budget
+### Step 2: Decide what pressure you want
+
+A word budget is optional and blunt. It says a page is long. It never says
+which words to cut. Set one only when a tree has outgrown anyone's attention
+and you want a number to argue with:
 
 ```bash
 uv run scripts/docs-loop.py budget total=30000 ignore='vendor/*'
 ```
 
-A doc tree with no ceiling grows. Pick a total, then per-file ceilings for the
-pages that matter. `scan` reports every file over its ceiling.
+Treat every ceiling as a question. When a page lands over one and each
+remaining word is earned, raise the ceiling and record why. Cutting a fact to
+reach a number chosen before anyone read the page is the failure this skill
+exists to prevent.
+
+`gate` is the pressure that works, and it needs no number: a file may not get
+worse than it was. See [CHECKERS.md](CHECKERS.md).
 
 ### Step 3: Find the duplication
 

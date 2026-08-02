@@ -314,7 +314,8 @@ def macro(blocks, findings, caps):
                 counts["explains_after_pointing"] += 1
         if section and section_words > caps["section_words"]:
             findings.append((section[0], "structure", "long_section",
-                             f"{section[1]!r} runs {section_words} words, over the {caps['section_words']} word scene cap"))
+                             f"{section[1]!r} runs {section_words} words. Judge it: "
+                             f"a section this long usually holds two"))
             counts["long_section"] += 1
         if section and section_code > caps["code_blocks_per_section"]:
             findings.append((section[0], "structure", "code_density",
@@ -931,7 +932,10 @@ CFG_DEFAULTS = {
     # .docs-loop.json and never edits this file.
     "caps": {
         "heading_depth": 3,          # deeper than this and the page has sub-sub-topics
-        "section_words": 400,        # one scene, not a chapter
+        # Signals, not laws. Each says "look here", and the reader decides.
+        # No page has a right length: the target is the fewest words that keep
+        # every concept, which no threshold can measure.
+        "section_words": 400,        # past this, a section usually holds two
         "code_blocks_per_section": 2,
         "mermaid_per_page": 1,
         "paragraph_sentences": 6,

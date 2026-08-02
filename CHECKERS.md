@@ -141,6 +141,10 @@ the ability to` means `can`.
 
 ## Configuration
 
+Every `caps` value is a signal, not a law. Each says "look here" and leaves the
+judgment to a reader. No page has a right length. The target is the fewest
+words that keep every concept, and no threshold measures that.
+
 `.docs-loop.json` at the repository root holds the last 20 runs and every
 setting. Commit it. `progress` needs it after a new session, a merge, or a
 revert.
@@ -150,7 +154,7 @@ The script names no project. Run it anywhere and it writes its own defaults.
 | Key | Holds |
 |---|---|
 | `caps.heading_depth` | deepest allowed heading level, default 3 |
-| `caps.section_words` | one scene, default 400 |
+| `caps.section_words` | past this a section usually holds two, default 400 |
 | `caps.code_blocks_per_section` | default 2 |
 | `caps.mermaid_per_page` | default 1 |
 | `caps.paragraph_sentences` | default 6 |

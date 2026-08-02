@@ -66,14 +66,10 @@ This is the step the checkers cannot help with, and the step that removes real
 words. A page can score 8 findings per 1000 and still be twice as long as it
 should be. Run these six tests before you touch a sentence.
 
-**The pointer test.** Does the text name an authoritative source and then
-explain it anyway? Keep the pointer, cut the explanation. The copy drifts from
-what it copies, and the reader who needs that depth is one click away.
-
-This is the highest-yield test by a wide margin. It cut one section from 1,310
-words to 396, and every rule it dropped still exists where a gate enforces it.
-`docs-loop.py fix` reports the candidates as `explains_after_pointing`, so you
-do not have to spot them yourself.
+**The pointer test.** The highest-yield test by a wide margin. It cut one
+section from 1,310 words to 396, and every rule it dropped still exists where
+a gate enforces it. `docs-loop.py fix` reports the candidates as
+`explains_after_pointing`, so you do not have to spot them yourself.
 
 **The enforcement test.** Is the rule already held by a test, a type, a gate,
 or a compiler error? Then the page says the rule exists and names what holds
@@ -113,9 +109,8 @@ Three shapes of waste hide at this level and nowhere else.
   said nothing.
 - **Over quotation**: a block quote doing work the writer owes the reader.
 
-Keep cutting while the answer to "can I remove this and lose no concept?" is
-yes. Move on when every remaining paragraph carries an idea the reader needs
-and nothing else does.
+Move on when every remaining paragraph carries an idea the reader needs, and
+nothing else does.
 
 ### Step 3: Fix build-up order
 

@@ -292,6 +292,7 @@ POINTER = re.compile(
     r"\b(?:read (?:its|the|that) (?:module doc|docstring|source)|"
     r"its module doc (?:is|owns|carries)|documented in|"
     r"the (?:contract|authority|authoritative \w+) (?:is|lives|for)|"
+    r"(?:is|are) the authoritative \w+|the authoritative \w+ (?:is|are|for)|"
     r"authoritative definition|see \[|defined in|owns the rule)\b", re.I)
 
 PIVOTS = re.compile(
@@ -950,7 +951,7 @@ CFG_DEFAULTS = {
         "quote_ratio": 0.15,         # quoted words over prose words
         "repeated_phrase_len": 5,
         "repeated_phrase_floor": 3,
-        "duplicate_threshold": 0.55,  # BM25 score against a self-match
+        "duplicate_threshold": 0.45,  # BM25 score against a self-match
         "duplicate_min_words": 25,
         "ground_window": 6,          # a lead-in before a definition table is fine
         "page_opening_words": 25,    # what a page owes before its first heading

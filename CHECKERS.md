@@ -15,10 +15,8 @@ the shape it has.
 
 ## Discovery is configurable, because docs move
 
-`scan` takes `.md`, `.mdx`, `.markdown`, and `.mdown`, skips hidden
-directories, and walks from the repository root or the working directory when
-there is no git. Override `extensions`, `skip_dirs`, and `include_hidden` in
-`.docs-loop.json`.
+Step 0 of the maintenance workflow in [SKILL.md](SKILL.md) lists the settings
+and where docs usually sit.
 
 A Docusaurus site under `website/docs/` with `.mdx` pages was invisible to an
 earlier version of this tool, which took `.md` and nothing else.
@@ -52,9 +50,8 @@ Four sections moved out of an `AGENTS.md` into their own files, and nobody ran a
 checker on the destinations. The two smallest scored 52 and 36 findings per 1000
 words against 8 and 15 for pages written as pages.
 
-A moved section arrives with no opening and a heading pitched for a different
-parent. `orphan_section` catches one heading over real prose. `no_opening`
-catches a heading arriving before the page grounds its subject.
+`orphan_section` catches one heading over real prose. `no_opening` catches a
+heading arriving before the page grounds its subject.
 
 ## Phrase matching flattens newlines first
 

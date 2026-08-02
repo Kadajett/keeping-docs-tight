@@ -12,6 +12,8 @@ or feed it to a judge model.
 - [Eval 1: revise one page](#eval-1-revise-one-page)
 - [Eval 2: find the duplication](#eval-2-find-the-duplication)
 - [Eval 3: strip the tells](#eval-3-strip-the-tells)
+- [Eval 4: catch the false claims](#eval-4-catch-the-false-claims)
+- [Eval 5: audit a tree](#eval-5-audit-a-tree)
 - [Baselines](#baselines)
 - [What these do not cover](#what-these-do-not-cover)
 
@@ -81,6 +83,52 @@ instead. Copy `test-files/example-repo/` somewhere outside a git tree, or run
 
 Catches an agent that swaps `leverage` for `utilize` and calls it done.
 
+## Eval 4: catch the false claims
+
+```json
+{
+  "skills": ["keeping-docs-tight"],
+  "query": "Is docs/retry.md still accurate?",
+  "files": ["test-files/accuracy-repo/"],
+  "expected_behavior": [
+    "Reads src/retry.go before answering",
+    "Finds 'up to five times' against MaxAttempts = 3",
+    "Finds 'every failure is retried, including a 4xx' against the 4xx branch that returns ErrClientError",
+    "Finds 'set MaxAttempts to zero to disable' against a loop starting at 1, where zero disables nothing",
+    "Finds 'backoff is linear' against sleep *= 2",
+    "Finds 'retry.Run' against the exported function Do",
+    "Does not report the page as fine because the checkers score it clean"
+  ]
+}
+```
+
+The most important evaluation here, and the one no checker can help with. The
+page carries five contradictions with its own source and scores 1 finding at
+13.9 per 1000 words, which reads as a nearly clean page.
+
+## Eval 5: audit a tree
+
+```json
+{
+  "skills": ["keeping-docs-tight"],
+  "query": "Our docs have gotten away from us. Where do we start?",
+  "files": ["test-files/long-tree/"],
+  "expected_behavior": [
+    "Runs scan and quotes real totals, then ranks",
+    "Starts with docs/configuration.md, the worst file by findings per 1000 words",
+    "Notices it names src/config.rs as authoritative and then restates the reasoning",
+    "Finds docs/postings.md and docs/data-model.md carry one fact in two wordings",
+    "Reads src/limits.rs and catches docs/batching.md claiming 1000 against MAX_BATCH = 500",
+    "Notices docs/currency.md opens on a heading with nothing grounding it",
+    "Does not treat docs/batching.md as healthy because it scores zero findings"
+  ]
+}
+```
+
+Nine pages with contrast from 115.2 findings per 1000 words down to 0.0, so
+ranking has something to rank. The two traps are the page that scores worst and
+is merely repetitive, and the page that scores zero and is wrong.
+
 ## Baselines
 
 Measured 2026-08-02 on the fixtures as committed.
@@ -90,6 +138,12 @@ Measured 2026-08-02 on the fixtures as committed.
 | `bloated-readme.md` | 456 | 22 | 48.2 | 0 |
 | `model-written-changelog.md` | 110 | 12 | 109.1 | 7 |
 | `example-repo/` | 2 pages | 1 duplicate pair | | |
+| `accuracy-repo/docs/retry.md` | 72 | 1 | 13.9 | 0 |
+| `long-tree/` | 1,084 across 9 files | 101 | 93.2 | 1 |
+
+The two rows above are the point. `retry.md` scores 13.9 and contradicts its
+source five times. `long-tree/docs/batching.md` scores 0.0 and states a limit
+of 1000 against a `MAX_BATCH` of 500.
 
 A run that lowers these numbers while keeping every fact is a pass. A run that
 lowers them by deleting a fact is a failure, and the checkers cannot tell the
@@ -97,16 +151,13 @@ difference. Read the output.
 
 ## What these do not cover
 
-Three gaps. Each is named here so nobody discovers it by surprise.
+One gap, named here so nobody discovers it by surprise.
 
 **No model matrix.** The skill has been exercised on one model. The authoring
 guidance asks for Haiku, Sonnet, and Opus, because a skill that reads as
 over-explained to one can read as too thin to another.
 
-**No accuracy fixture.** The highest-value check in this skill is reading the
-code before believing the page, and none of these three test it. That needs a
-fixture with source and a document that contradicts it.
-
-**No long-tree fixture.** `example-repo/` has two pages. The maintenance
-workflow is built for a tree that outgrew one reader, and two pages does not
-exercise ranking, budgets, or the gate.
+**No model matrix, and no way to build one from inside a session.** Running
+these against Haiku, Sonnet, and Opus is a task for whoever owns the skill.
+Load it, run eval 4 on each model, and compare how many of the five
+contradictions each one finds.

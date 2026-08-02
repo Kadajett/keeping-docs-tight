@@ -19,6 +19,10 @@ Three lenses order the work:
 Work top down. Cut a section before you polish a sentence in it. Polishing
 prose you later delete is the most common way to waste a revision.
 
+The checkers measure form. They cannot judge whether an idea is over-explained.
+They cannot tell a true claim from a false one. Those two are most of the work.
+Do [Step 2](#step-2-cut-what-the-reader-does-not-need) before you read a score.
+
 ## Which workflow
 
 - **Editing one page?** Run the [revision workflow](#revision-workflow).
@@ -48,14 +52,48 @@ uv run scripts/docs-loop.py outline FILE
 paragraph. Each line carries the line number, the counts, the paragraph's first
 sentence, and any rule it trips.
 
-### Step 2: Cut and reorder
+### Step 2: Cut what the reader does not need
 
-Ask four questions of that outline, in order:
+This is the step the checkers cannot help with, and the step that removes real
+words. A page can score 8 findings per 1000 and still be twice as long as it
+should be. Run these six tests before you touch a sentence.
+
+**The pointer test.** Does the text name an authoritative source and then
+explain it anyway? Keep the pointer, cut the explanation. The copy drifts from
+what it copies, and the reader who needs that depth is one click away.
+
+This is the highest-yield test by a wide margin. It cut one section from 1,310
+words to 396, and every rule it dropped still exists where a gate enforces it.
+`docs-loop.py fix` reports the candidates as `explains_after_pointing`, so you
+do not have to spot them yourself.
+
+**The enforcement test.** Is the rule already held by a test, a type, a gate,
+or a compiler error? Then the page says the rule exists and names what holds
+it. It does not restate the rule. Prose restating an enforced rule will one day
+contradict it, and the reader believes the prose.
+
+**The decision test.** A guide serves someone about to do a thing. Write down
+the decisions they have to make. Every paragraph that helps none of them is
+background, and background belongs somewhere a reader chooses to go.
+
+**The incident test.** Was this written the day a bug was found? That prose
+carries the whole investigation. The lesson is one or two sentences. The
+investigation belongs in the commit message and in the test that holds it now.
+
+**The topic count.** Name what the section is about in one sentence. If you
+cannot, it is not a section, it is a pile. Split it into sections or reduce it
+to a map: a table of the things and where each one lives.
+
+**The earned-words test.** Would a reader use every line? A 16-row checklist of
+every place a new language must appear earns 250 words, because someone works
+down it. Eight paragraphs of what changed in which iteration earn none, because
+git holds that already.
+
+Then the shape questions:
 
 1. Does the order make sense?
-2. What is here that the reader does not need? Cut it.
-3. What does the reader need that is missing? Add it.
-4. Which paragraph carries two purposes? Split it.
+2. What does the reader need that is missing? Add it.
+3. Which paragraph carries two purposes? Split it.
 
 A paragraph has one purpose, one topic sentence, and its evidence. A paragraph
 you cannot summarize in a few words is the paragraph to split.

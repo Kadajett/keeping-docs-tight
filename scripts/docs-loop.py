@@ -280,6 +280,15 @@ def strip_inline(text):
 
 # ------------------------------------------------------------- macro checks
 
+# The text names an authority and keeps explaining. The copy drifts from the
+# thing it copies, and the reader who needs that depth is one click away. This
+# is judgment, not a rule, so it names a candidate rather than a violation.
+POINTER = re.compile(
+    r"\b(?:read (?:its|the|that) (?:module doc|docstring|source)|"
+    r"its module doc (?:is|owns|carries)|documented in|"
+    r"the (?:contract|authority|authoritative \w+) (?:is|lives|for)|"
+    r"authoritative definition|see \[|defined in|owns the rule)\b", re.I)
+
 PIVOTS = re.compile(
     r"\b(?:however|although|meanwhile|separately|in addition|also|conversely|"
     r"on the other hand|that said|by contrast)\b", re.I)
@@ -290,10 +299,19 @@ def macro(blocks, findings, caps):
     """Structure, redundancy, and the shape of the page."""
     counts = Counter()
     section, section_words, section_code, first_para_of_section = None, 0, 0, True
+    section_pointer_at = None
     quote_words = prose_words = 0
     mermaid = 0
 
     def close_section():
+        if section and section_pointer_at is not None:
+            after = section_words - section_pointer_at
+            if after >= caps["explain_after_pointer_words"]:
+                findings.append((section[0], "structure", "explains_after_pointing",
+                                 f"{section[1]!r} names an authority then continues for "
+                                 f"{after} words. Judge it: keep the pointer, cut what "
+                                 f"repeats what it points at"))
+                counts["explains_after_pointing"] += 1
         if section and section_words > caps["section_words"]:
             findings.append((section[0], "structure", "long_section",
                              f"{section[1]!r} runs {section_words} words, over the {caps['section_words']} word scene cap"))
@@ -307,6 +325,7 @@ def macro(blocks, findings, caps):
         if b.kind == "heading":
             close_section()
             section, section_words, section_code, first_para_of_section = (b.line, b.text), 0, 0, True
+            section_pointer_at = None
             if b.level > caps["heading_depth"]:
                 findings.append((b.line, "structure", "deep_heading",
                                  f"level {b.level} heading {b.text!r}, deeper than {caps['heading_depth']}"))
@@ -336,6 +355,8 @@ def macro(blocks, findings, caps):
         text = strip_inline(b.text)
         n = len(words(text))
         prose_words += n
+        if section_pointer_at is None and POINTER.search(b.text):
+            section_pointer_at = section_words
         section_words += n
         sents = sentences(b.text, per_line=(b.kind == "list"))
 
@@ -924,6 +945,7 @@ CFG_DEFAULTS = {
         "duplicate_min_words": 25,
         "ground_window": 6,          # a lead-in before a definition table is fine
         "page_opening_words": 25,    # what a page owes before its first heading
+        "explain_after_pointer_words": 150,  # prose after naming an authority
     },
     # How `gate` behaves. A gate nobody can pass gets bypassed, and a bypassed
     # gate enforces nothing, so "ratchet" is the default: a file may not get

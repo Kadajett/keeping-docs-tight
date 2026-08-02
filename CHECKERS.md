@@ -100,6 +100,17 @@ directories, and the ignore globs. Pass explicit paths to narrow it.
 | `voice` | the eight rules from `voice-lint.py` |
 | `mechanics` | the rules from `ste-lint.py` |
 
+### When a section explains what it just pointed at
+
+`explains_after_pointing` names a section that cites an authority (a module
+doc, a contract, a definition) and then keeps going for more than
+`explain_after_pointer_words`. It reports a candidate, not a violation, because
+only a reader can tell background from a copy.
+
+It reproduces the judgment that cut one section from 1,310 words to 396. Run
+against that section before the cut, it named it at 996 words past the pointer,
+and it went quiet after.
+
 ### When a moved section pretends to be a page
 
 `orphan_section` fires on a file with one heading and real prose under it. That

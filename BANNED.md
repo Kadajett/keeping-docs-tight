@@ -61,6 +61,14 @@ End on the last real point.
 | Trailing dramatization | ...triggering a chain of events. | Delete the clause. |
 | Staccato fragments | It was not. It could not be. | One sentence, stated. |
 | Rhetorical question | So what does this mean? | State what it means. |
+| Self-certifying | The gap stays open, and I will not pretend otherwise. | The gap stays open. |
+| Self-certifying | To be honest, the build is red. | The build is red. |
+| Self-certifying | Three gaps, named rather than hidden. | Three gaps. |
+
+A note on the last one. The writer vouches for their own honesty, which asks
+the reader to admire the writer instead of reading the fact. A true statement
+needs no character reference from the person making it, and the certificate is
+always the part you can cut.
 
 ### Vocabulary
 

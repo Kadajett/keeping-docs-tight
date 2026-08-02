@@ -21,11 +21,24 @@ and where docs usually sit.
 A Docusaurus site under `website/docs/` with `.mdx` pages was invisible to an
 earlier version of this tool, which took `.md` and nothing else.
 
+## self_certifying
+
+The writer vouches for their own honesty. A true statement needs no character
+reference from the person making it.
+
+<!-- docs-loop: off -->
+Examples: "and I will not pretend otherwise", "to be honest,", "named rather
+than hidden". It fires on the discourse-marker form only, so "I told him to be
+honest" and "an honest mistake" both pass.
+<!-- docs-loop: on --> Neither repository this was built against
+carried a single instance. The habit belongs to conversation, and this catches
+it if it reaches a page.
+
 ## over_quotation has a prose floor
 
 A short README with one attribution blockquote always exceeds a ratio. The
-check is about a writer quoting instead of writing, which needs enough prose
-to be true, so it stays quiet under `quote_ratio_min_words`.
+check asks whether a writer quoted where they should have written, which needs
+enough prose to be true. It stays quiet under `quote_ratio_min_words`.
 
 ## Two checks score by volume
 

@@ -38,6 +38,25 @@ RULES = [
      r"\b(?:not|never|no|neither|nor)\b[^.!?\n]{2,50}?[,;]\s*(?:and\s+|but\s+|or\s+)?"
      r"\b(?:not|never|no|nor)\b[^.!?\n]{2,50}?[,;]\s*(?:and\s+|but\s+|or\s+)?"
      r"\b(?:not|never|no|nor)\b"),
+    # The writer certifies their own honesty. A fact needs no character
+    # reference from the person stating it, and the certificate is a closing
+    # remark that credits the writer instead of informing the reader.
+    ("self_certifying",
+     r"\b(?:and )?I (?:will not|won'?t|am not|'?m not|do not|don'?t)\s+"
+     r"(?:pretend|claim|hide|sugar-?coat|gloss|dress)\b|"
+     r"\bI(?:'?ll| will)?\s+(?:want|need|have|try|am going)?\s*to be\s+"
+     r"(?:honest|blunt|frank|direct|straight|transparent|upfront)\b|"
+     r"\b(?:let me be|being)\s+(?:honest|blunt|frank|direct|straight)\b|"
+     r"\b(?:in all honesty|full transparency|no sugar-?coating|"
+     r"the honest (?:version|answer|truth)|honestly speaking)\b|"
+     r"\b(?:named|stated|reported|said)\s+rather than\s+"
+     r"(?:hidden|hiding|buried|burying|glossed|pretending)\b|"
+     r"\brather than\s+(?:hiding|glossing over|burying|pretending|"
+     r"sugar-?coating|dressing)\b|"
+     r"\b(?:honestly|candidly|frankly),|"
+     # the discourse-marker form, which needs the comma: "I told him to be
+     # honest" is a fact about someone, not a certificate about the writer
+     r"\bto be (?:honest|blunt|frank|direct|straight)(?:\s+with you)?\s*,"),
     # Contrast built as structure rather than as one stated fact.
     ("contrast_construction",
      r"\b(?:instead of|as opposed to|in contrast to|far from|less .{2,20} than it is|"

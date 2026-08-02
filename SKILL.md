@@ -300,7 +300,26 @@ python3 scripts/ste-lint.py FILE     # mechanics  gate: em_dash 0, per100w < 1.5
 python3 scripts/voice-lint.py FILE   # tells      gate: hits 0
 uv run scripts/docs-loop.py fix FILE # all six    gate: nothing outside mechanics
 uv run scripts/docs-loop.py scan     # the tree, stateful
+uv run scripts/docs-loop.py gate     # refuse a change that made a file worse
 ```
+
+`gate` is the one that survives a forgetful agent. The other three report, and a
+report can go unread. `gate` scores only the markdown you staged, compares each
+file against its recorded floor, and exits non-zero when one got worse. Wire it
+into a commit hook and the step stops being optional:
+
+```bash
+uv run scripts/docs-loop.py install-hook   # writes a pre-commit hook
+uv run scripts/docs-loop.py gate --accept  # record today's counts as the floor
+```
+
+Three modes in `.docs-loop.json` under `gate.mode`. `ratchet` is the default: a
+file may not exceed its floor, which is always achievable, so nobody disables
+it. `hard` blocks only on em dashes, semicolons and contractions. `advisory`
+prints and always passes.
+
+A gate nobody can pass gets bypassed, and a bypassed gate enforces nothing. That
+is why the default is a ratchet and not zero.
 
 `.docs-loop.json` at the repository root holds the state and every threshold. A
 project tunes the checker there and never edits the script. Full command list,

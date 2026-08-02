@@ -1,5 +1,9 @@
 # The checkers
 
+Three scripts enforce the rules in `SKILL.md`. This page covers what each one
+reads, every command, every configuration key, and the gate that makes a fix
+non-optional.
+
 ## Contents
 
 - [Install and run](#install-and-run) - dependencies, uv, fallbacks
@@ -9,6 +13,7 @@
 - [The six categories](#the-six-categories) - what each one checks
 - [Configuration](#configuration) - every key in .docs-loop.json
 - [Suppressing a quoted example](#suppressing-a-quoted-example)
+- [gate: making the fix non-optional](#gate-making-the-fix-non-optional)
 - [What a checker cannot do](#what-a-checker-cannot-do)
 
 ## Install and run
@@ -168,6 +173,37 @@ both spellings. YAML frontmatter is skipped without a marker.
 
 Use it for quoted examples and ban lists. A suppressed region holding real
 prose defeats the checker.
+
+## gate: making the fix non-optional
+
+Every other command reports. A report can go unread, and one did: four sections
+moved into new files, the checkers flagged them, and nobody looked for three
+iterations.
+
+`gate` scores only the markdown you staged and exits non-zero when a file got
+worse than its floor.
+
+```bash
+uv run docs-loop.py gate              # score the staged markdown
+uv run docs-loop.py gate FILE ...     # or name the files
+uv run docs-loop.py gate --accept     # record today's counts as the new floor
+uv run docs-loop.py install-hook      # write a pre-commit hook that calls it
+```
+
+| `gate.mode` | Refuses when |
+|---|---|
+| `ratchet` (default) | a staged file exceeds its floor, or trips a hard rule |
+| `hard` | a staged file trips a hard rule |
+| `advisory` | never. It prints and passes |
+
+`gate.hard_rules` defaults to `em_dash`, `semicolon`, `contraction`: the rules
+with a cap of zero, which no floor should ever forgive.
+
+`gate.baseline` holds the floor. With none recorded, `gate` falls back to the
+newest `scan`. Raise it deliberately with `--accept`, never silently.
+
+`install-hook` respects `core.hooksPath` and refuses to overwrite a hook you
+already have, printing the line to add instead.
 
 ## What a checker cannot do
 

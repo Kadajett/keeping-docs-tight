@@ -18,6 +18,9 @@ files, so it can find the same paragraph written twice in two places.
     docs-loop.py dupes [PATH ...]    near-duplicate paragraphs across files
     docs-loop.py progress            this run against the previous one
     docs-loop.py budget PATH=N       set a word ceiling for one path
+    docs-loop.py gate [FILE ...]     refuse a change that makes a file worse
+    docs-loop.py gate --accept       record today's counts as the new floor
+    docs-loop.py install-hook        wire gate into this repo's pre-commit
 
 Checks, by category:
 
@@ -899,6 +902,14 @@ CFG_DEFAULTS = {
         "ground_window": 6,          # a lead-in before a definition table is fine
         "page_opening_words": 25,    # what a page owes before its first heading
     },
+    # How `gate` behaves. A gate nobody can pass gets bypassed, and a bypassed
+    # gate enforces nothing, so "ratchet" is the default: a file may not get
+    # worse than its recorded floor, which is always achievable.
+    "gate": {
+        "mode": "ratchet",           # ratchet | hard | advisory
+        "hard_rules": ["em_dash", "semicolon", "contraction"],
+        "baseline": {},              # path -> findings, written by --accept
+    },
     # Acronyms this project uses without spelling out. The built-in list holds
     # only names a general technical reader knows.
     "acronyms_ok": [],
@@ -1191,6 +1202,122 @@ def cmd_progress(argv):
         print(f"  {d:>+5}  {f}")
 
 
+def changed_markdown():
+    """Staged markdown, falling back to everything changed against HEAD."""
+    for args in (["diff", "--cached", "--name-only", "--diff-filter=ACM"],
+                 ["diff", "--name-only", "--diff-filter=ACM", "HEAD"]):
+        out = subprocess.run(["git"] + args, capture_output=True, text=True)
+        files = [f for f in out.stdout.split("\n") if f.endswith(".md")]
+        if files:
+            return [f for f in files if os.path.exists(f)]
+    return []
+
+
+def cmd_gate(argv):
+    """Refuse a change that makes a file worse than its recorded floor."""
+    state = load_state()
+    cfg = config(state)
+    gate = cfg["gate"]
+    root = repo_root()
+    cwd = os.getcwd()
+    os.chdir(root)
+    try:
+        explicit = [a for a in argv if not a.startswith("-")]
+        files = explicit or changed_markdown()
+        files = [f for f in files if not any(
+            __import__("fnmatch").fnmatch(f, g) for g in cfg["ignore"])]
+        if not files:
+            print("docs gate: no markdown staged")
+            return 0
+
+        floor = dict(gate.get("baseline") or {})
+        if not floor and state["runs"]:
+            floor = {p: r["findings"] for p, r in state["runs"][-1]["files"].items()}
+
+        rows, hard, worse = [], [], []
+        for f in files:
+            r = analyze(f, cfg)
+            counts = r["counts"]
+            was = floor.get(f)
+            rows.append((f, was, r["findings"]))
+            for rule in gate["hard_rules"]:
+                if counts.get(rule):
+                    hard.append((f, rule, counts[rule]))
+            if was is not None and r["findings"] > was:
+                worse.append((f, was, r["findings"]))
+
+        if "--accept" in argv:
+            state.setdefault("gate", {})
+            state["gate"] = dict(gate)
+            state["gate"]["baseline"] = {f: n for f, _, n in rows} | floor | \
+                {f: n for f, _, n in rows}
+            save_state(state)
+            print(f"docs gate: floor recorded for {len(rows)} files")
+            return 0
+
+        print(f"\ndocs gate: {len(rows)} file(s), mode={gate['mode']}")
+        for f, was, now in rows:
+            delta = "" if was is None else f"{was} -> {now}"
+            mark = "  new" if was is None else ("  WORSE" if now > was else
+                                               ("  ok" if now == was else f"  ok  -{was - now}"))
+            print(f"  {f:<44}{delta:>12}{mark}")
+        for f, rule, n in hard:
+            print(f"  {rule:<14}{f}  x{n}  hard rule")
+
+        if gate["mode"] == "advisory":
+            print("\n(advisory; commit proceeds)")
+            return 0
+        if hard:
+            print(f"\nREFUSED by a hard rule. Run: docs-loop.py fix {hard[0][0]}")
+            return 1
+        if gate["mode"] == "ratchet" and worse:
+            print(f"\nREFUSED. A file you touched got worse.")
+            print(f"Run: docs-loop.py fix {worse[0][0]}")
+            print("Or accept the new floor deliberately: docs-loop.py gate --accept")
+            return 1
+        print("\nclean")
+        return 0
+    finally:
+        os.chdir(cwd)
+
+
+HOOK = """#!/usr/bin/env bash
+# Written by `docs-loop.py install-hook`. Scores only the markdown you staged.
+# Bypass with `git commit --no-verify`.
+set -euo pipefail
+exec {runner} {script} gate
+"""
+
+
+def cmd_install_hook(argv):
+    root = repo_root()
+    hooks = subprocess.run(["git", "config", "core.hooksPath"],
+                           capture_output=True, text=True).stdout.strip()
+    hook_dir = os.path.join(root, hooks) if hooks else os.path.join(
+        subprocess.run(["git", "rev-parse", "--git-dir"], capture_output=True,
+                       text=True).stdout.strip(), "hooks")
+    os.makedirs(hook_dir, exist_ok=True)
+    path = os.path.join(hook_dir, "pre-commit")
+    script = os.path.abspath(__file__)
+    runner = "uv run --quiet" if subprocess.run(
+        ["which", "uv"], capture_output=True).returncode == 0 else "python3"
+    body = HOOK.format(runner=runner, script=script)
+
+    if os.path.exists(path):
+        existing = open(path, encoding="utf-8").read()
+        if script in existing:
+            print(f"already installed: {path}")
+            return 0
+        print(f"a pre-commit hook already exists at {path}")
+        print("Add this line to it yourself, so nothing of yours is lost:")
+        print(f"  {runner} {script} gate")
+        return 1
+    open(path, "w", encoding="utf-8").write(body)
+    os.chmod(path, 0o755)
+    print(f"installed: {path}")
+    return 0
+
+
 def cmd_budget(argv):
     state = load_state()
     if not argv:
@@ -1211,9 +1338,9 @@ def cmd_budget(argv):
 
 COMMANDS = {"scan": cmd_scan, "rank": cmd_rank, "outline": cmd_outline, "fix": cmd_fix,
             "compare": cmd_compare, "dupes": cmd_dupes, "progress": cmd_progress,
-            "budget": cmd_budget}
+            "budget": cmd_budget, "gate": cmd_gate, "install-hook": cmd_install_hook}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
         sys.exit(__doc__)
-    COMMANDS[sys.argv[1]](sys.argv[2:])
+    sys.exit(COMMANDS[sys.argv[1]](sys.argv[2:]) or 0)
